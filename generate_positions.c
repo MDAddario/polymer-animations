@@ -3,10 +3,9 @@
 #include <math.h>
 #include <time.h>
 
-#define FILENAME_RAW "output/distances_raw_1000.txt"
-#define FILENAME_AVG "output/distances_avg_1000.txt"
-#define NUM_MONOMERS 1000
-#define NUM_STEPS    1000000
+#define FILENAME     "monomer_positions.txt" 
+#define NUM_MONOMERS 10
+#define NUM_STEPS    10
 
 double random_angle(){
 	return (double) rand() / RAND_MAX * 2 * M_PI;
@@ -16,19 +15,28 @@ int random_monomer(){
 	return rand() % (NUM_MONOMERS - 1);
 }
 
-void saveToFile(char* filename, long size, long step, double *distances){
+void saveLineToFile(char* filename, double **positions){
 
 	// Open file
-	FILE* fptr = fopen(filename, "w+");
+	FILE* fptr = fopen(filename, "a+");
 	if (fptr == NULL){
 		printf("Unable to open file: %s.\n", filename);
 		return;
 	}
 
-	// Write to file
-	for (long i = 0; i < size; i++)
-		fprintf(fptr, "%ld, %lf\n", i * step, distances[i]);
+	// Append to file
+	for (int i = 0; i < NUM_MONOMERS; i++)
+		for (int j = 0; j < 3; j++)
+			fprintf(fptr, "%lf, ", positions[i][j]);
+	fprintf(fptr, "0.0 \n");
 
+	/*
+	NOTE THAT THE LINES END WITH COMMAS, WHICH WE DO NOT WANT!
+	FOR THE MOMENT, I THROW IN A 0.0 SO THAT np.loadtxt()
+	DOES NOT COMPLAIN!
+	*/
+
+	// Close file and exit
 	fclose(fptr);
 	return;
 }
