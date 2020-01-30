@@ -73,6 +73,9 @@ int main(){
 		positions[I][2] = 0.0;
 	}
 	
+	// Save positions
+	saveLineToFile(FILENAME, positions);
+	
 	// Random pivot sampling
 	for (long step = 0; step < NUM_STEPS; step++){
 		
