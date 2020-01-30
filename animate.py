@@ -4,10 +4,13 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
 
-# Loading the data set
-positions_raw = np.loadtxt('monomer_positions.txt', delimiter=',')
+'''
+LOAD DATA SET
+'''
 
+# Loading the data set
 # Trim the trailing zero artifact
+positions_raw = np.loadtxt('monomer_positions.txt', delimiter=',')
 positions_array = positions_raw[:,0:-1]
 
 # Determine how many different conformations there are
@@ -20,10 +23,8 @@ num_monomers = positions_array.shape[1] // 3
 shape = (num_monomers, 3)
 positions_list = [np.reshape(row, shape) for row in positions_array]
 
-exit()
-
 '''
-Plotting the system
+PLOT SYSTEM
 '''
 
 # Initiate axes
@@ -31,18 +32,23 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 # Initial positions
-graph = ax.scatter(positions[num_atoms * 0: num_atoms * 1, 0], \
-					positions[num_atoms * 1: num_atoms * 2, 0], \
-					positions[num_atoms * 2: num_atoms * 3, 0], \
+graph = ax.scatter(positions_list[0][:,0], \
+					positions_list[0][:,0], \
+					positions_list[0][:,0],
 					s=100, c='b')
 
 # Update atom positions
 def update(frame):
 
-	graph._offsets3d = (positions[num_atoms * 0: num_atoms * 1, frame], \
-						positions[num_atoms * 1: num_atoms * 2, frame], \
-						positions[num_atoms * 2: num_atoms * 3, frame])
+	graph._offsets3d = (positions_list[frame][:,0], \
+						positions_list[frame][:,1], \
+						positions_list[frame][:,2])
 
+'''
+CONFIGURE PLOT SETTINGS
+'''
+
+'''
 # Set axis limits
 ax.set_xlim3d([-a, a * N_1])
 ax.set_ylim3d([-b, b * N_2])
@@ -54,10 +60,12 @@ ax.grid(False)
 ax.set_xticks([])
 ax.set_yticks([])
 ax.set_zticks([])
-
-'''
-Animate!
 '''
 
-ani = FuncAnimation(fig, update, tot_frames, interval=1000/fps, blit=False)
+'''
+ANIMATE THE POLYMER
+'''
+
+fps = 60
+ani = FuncAnimation(fig, update, num_steps, interval=1000/fps, blit=False)
 plt.show()
