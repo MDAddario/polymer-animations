@@ -4,6 +4,17 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.animation import FuncAnimation
 
+# Loading the data set
+positions_raw = np.loadtxt('monomer_positions.txt', delimiter=',')
+
+# Trim the trailing zero artifact
+positions = positions_raw[:,0:-1]
+
+print(positions_raw)
+print(positions)
+
+exit()
+
 '''
 Plotting the system
 '''
