@@ -32,35 +32,33 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 # Initial positions
-graph = ax.scatter(positions_list[0][:,0], \
-					positions_list[0][:,0], \
-					positions_list[0][:,0],
-					s=100, c='b')
+line = ax.plot(positions_list[0][:,0], \
+				positions_list[0][:,0], \
+				positions_list[0][:,0],
+				'-o')[0]
 
 # Update atom positions
 def update(frame):
 
-	graph._offsets3d = (positions_list[frame][:,0], \
-						positions_list[frame][:,1], \
-						positions_list[frame][:,2])
+	line.set_data(positions_list[frame][:,0:2].T)
+	line.set_3d_properties(positions_list[frame][:,2])
 
 '''
 CONFIGURE PLOT SETTINGS
 '''
 
-'''
 # Set axis limits
-ax.set_xlim3d([-a, a * N_1])
-ax.set_ylim3d([-b, b * N_2])
-ax.set_zlim3d([-c, c * N_3])
-ax.set_title('Cubic Lattice Phonons', fontsize=20, y=1.08)
+limit = np.sqrt(num_monomers) / 2
+ax.set_xlim3d([-limit, limit])
+ax.set_ylim3d([-limit, limit])
+ax.set_zlim3d([-limit, limit])
+ax.set_title('Freely Jointed Random Walk', fontsize=20)
 
 # Hide grid lines and ticks
-ax.grid(False)
-ax.set_xticks([])
-ax.set_yticks([])
-ax.set_zticks([])
-'''
+#ax.set_xticks([])
+#ax.set_yticks([])
+#ax.set_zticks([])
+#ax.grid(False)
 
 '''
 ANIMATE THE POLYMER
