@@ -52,7 +52,7 @@ limit = np.sqrt(num_monomers) / 2
 ax.set_xlim3d([-limit, limit])
 ax.set_ylim3d([-limit, limit])
 ax.set_zlim3d([-limit, limit])
-ax.set_title('Freely Jointed Random Walk', fontsize=20)
+ax.set_title('Freely Jointed 2D Random Walk', fontsize=20)
 
 # Hide grid lines and ticks
 #ax.set_xticks([])
