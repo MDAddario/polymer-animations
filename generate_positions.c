@@ -4,8 +4,8 @@
 #include <time.h>
 
 #define FILENAME     "monomer_positions.txt" 
-#define NUM_MONOMERS 10
-#define NUM_STEPS    10
+#define NUM_MONOMERS 20
+#define NUM_STEPS    1000
 
 double random_angle(){
 	return (double) rand() / RAND_MAX * 2 * M_PI;
@@ -15,10 +15,36 @@ int random_monomer(){
 	return rand() % (NUM_MONOMERS - 1);
 }
 
+void saveFirstLineToFile(char* filename, double **positions){
+
+	// Open file
+	FILE* fptr = fopen(filename, "w+");
+	if (fptr == NULL){
+		printf("Unable to open file: %s.\n", filename);
+		return;
+	}
+
+	// Append to file
+	for (int i = 0; i < NUM_MONOMERS; i++)
+		for (int j = 0; j < 3; j++)
+			fprintf(fptr, "%lf, ", positions[i][j]);
+	fprintf(fptr, "0.0 \n");
+
+	/*
+	NOTE THAT THE LINES END WITH COMMAS, WHICH WE DO NOT WANT!
+	FOR THE MOMENT, I THROW IN A 0.0 SO THAT np.loadtxt()
+	DOES NOT COMPLAIN!
+	*/
+
+	// Close file and exit
+	fclose(fptr);
+	return;
+}
+
 void saveLineToFile(char* filename, double **positions){
 
 	// Open file
-	FILE* fptr = fopen(filename, "a+");
+	FILE* fptr = fopen(filename, "a");
 	if (fptr == NULL){
 		printf("Unable to open file: %s.\n", filename);
 		return;
@@ -74,7 +100,7 @@ int main(){
 	}
 	
 	// Save positions
-	saveLineToFile(FILENAME, positions);
+	saveFirstLineToFile(FILENAME, positions);
 	
 	// Random pivot sampling
 	for (long step = 0; step < NUM_STEPS; step++){
