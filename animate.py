@@ -49,7 +49,7 @@ CONFIGURE PLOT SETTINGS
 '''
 
 # Set axis limits
-limit = np.sqrt(num_monomers) / 2
+limit = np.sqrt(num_monomers)
 ax.set_xlim3d([-limit, limit])
 ax.set_ylim3d([-limit, limit])
 ax.set_zlim3d([-limit, limit])
@@ -61,4 +61,5 @@ ANIMATE THE POLYMER
 
 fps = 60
 ani = FuncAnimation(fig, update, num_steps, interval=1000/fps, blit=False)
+#ani.save('data/animation.gif', writer='imagemagick', fps=60)
 plt.show()
