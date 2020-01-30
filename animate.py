@@ -10,7 +10,8 @@ LOAD DATA SET
 
 # Loading the data set
 # Trim the trailing zero artifact
-positions_raw = np.loadtxt('monomer_positions.txt', delimiter=',')
+filename = 'data/monomer_positions.txt'
+positions_raw = np.loadtxt(filename, delimiter=',')
 positions_array = positions_raw[:,0:-1]
 
 # Determine how many different conformations there are
@@ -52,13 +53,7 @@ limit = np.sqrt(num_monomers) / 2
 ax.set_xlim3d([-limit, limit])
 ax.set_ylim3d([-limit, limit])
 ax.set_zlim3d([-limit, limit])
-ax.set_title('Freely Jointed 2D Random Walk', fontsize=20)
-
-# Hide grid lines and ticks
-#ax.set_xticks([])
-#ax.set_yticks([])
-#ax.set_zticks([])
-#ax.grid(False)
+ax.set_title('Freely Jointed 3D Random Walk', fontsize=20)
 
 '''
 ANIMATE THE POLYMER

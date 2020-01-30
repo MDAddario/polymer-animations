@@ -3,67 +3,53 @@
 #include <math.h>
 #include <time.h>
 
-#define FILENAME     "monomer_positions.txt" 
-#define NUM_MONOMERS 20
-#define NUM_STEPS    1000
+#define FILENAME     "data/monomer_positions.txt" 
+#define NUM_MONOMERS 10
+#define NUM_STEPS    100
 
-double random_angle(){
-	return (double) rand() / RAND_MAX * 2 * M_PI;
+enum coord{X, Y, Z};
+
+double random_theta(){
+	return (double) rand() / RAND_MAX * M_PI;
 }
 
-int random_monomer(){
+double random_phi(){
+	return (double) rand() / RAND_MAX * M_PI * 2.0;
+}
+
+int random_monomer_index(){
 	return rand() % (NUM_MONOMERS - 1);
 }
 
-void saveFirstLineToFile(char* filename, double **positions){
-
+void saveFile(char *filename, double **positions, char *mode){
+	
 	// Open file
-	FILE* fptr = fopen(filename, "w+");
+	FILE* fptr = fopen(filename, mode);
 	if (fptr == NULL){
 		printf("Unable to open file: %s.\n", filename);
 		return;
 	}
 
-	// Append to file
+	// Write to file
 	for (int i = 0; i < NUM_MONOMERS; i++)
-		for (int j = 0; j < 3; j++)
+		for (int j = 0; j <= 2; j++)
 			fprintf(fptr, "%lf, ", positions[i][j]);
 	fprintf(fptr, "0.0 \n");
 
-	/*
-	NOTE THAT THE LINES END WITH COMMAS, WHICH WE DO NOT WANT!
-	FOR THE MOMENT, I THROW IN A 0.0 SO THAT np.loadtxt()
-	DOES NOT COMPLAIN!
-	*/
-
-	// Close file and exit
+	// Close file
 	fclose(fptr);
 	return;
 }
 
-void saveLineToFile(char* filename, double **positions){
+void saveFirstLineToFile(char* filename, double **positions){
 
-	// Open file
-	FILE* fptr = fopen(filename, "a");
-	if (fptr == NULL){
-		printf("Unable to open file: %s.\n", filename);
-		return;
-	}
+	saveFile(filename, positions, "w+");
+	return;
+}
 
-	// Append to file
-	for (int i = 0; i < NUM_MONOMERS; i++)
-		for (int j = 0; j < 3; j++)
-			fprintf(fptr, "%lf, ", positions[i][j]);
-	fprintf(fptr, "0.0 \n");
+void saveNextLineToFile(char* filename, double **positions){
 
-	/*
-	NOTE THAT THE LINES END WITH COMMAS, WHICH WE DO NOT WANT!
-	FOR THE MOMENT, I THROW IN A 0.0 SO THAT np.loadtxt()
-	DOES NOT COMPLAIN!
-	*/
-
-	// Close file and exit
-	fclose(fptr);
+	saveFile(filename, positions, "a");
 	return;
 }
 
@@ -72,31 +58,38 @@ int main(){
 	// Seed rand
 	srand(time(NULL));
 	
+	// Declare my friendly variables
+	int index, next_index;
+	double theta, phi;
+	double cos_t, sin_t;
+	double cos_p, sin_p;
+	double vec_x, vec_y, vec_z;
+	double disp_x, disp_y, disp_z;
+	
 	// Allocate position array
 	double **positions = (double**)malloc(NUM_MONOMERS * sizeof(double*));
-	for (int I = 0; I < NUM_MONOMERS; I++)
-		positions[I] = (double*)malloc(3 * sizeof(double));
-	
-	// Declare my friendly variables
-	int I;
-	double a = 1.0;
-	double angle;
-	double disp_x, disp_y;
-	double cosine, sine;
-	double vector_x, vector_y;
-	double rot_vec_x, rot_vec_y;
+	for (index = 0; index < NUM_MONOMERS; index++)
+		positions[index] = (double*)malloc(3 * sizeof(double));
 	
 	// Randomly generate polymer I.C.s
-	positions[0][0] = 0.0;
-	positions[0][1] = 0.0;
-	positions[0][2] = 0.0;
+	positions[0][X] = 0.0;
+	positions[0][Y] = 0.0;
+	positions[0][Z] = 0.0;
 	
-	for (I = 1; I < NUM_MONOMERS; I++){
+	for (index = 1; index < NUM_MONOMERS; index++){
 		
-		angle = random_angle();
-		positions[I][0] = positions[I-1][0] + a * cos(angle);
-		positions[I][1] = positions[I-1][1] + a * sin(angle);
-		positions[I][2] = 0.0;
+		// Pick random angles
+		theta = random_theta();
+		phi   = random_phi();
+		
+		cos_t = cos(theta);
+		sin_t = sin(theta);
+		cos_p = cos(phi);
+		sin_p = sin(phi);
+		
+		positions[index][X] = positions[index - 1][X] + sin_t * cos_p;
+		positions[index][Y] = positions[index - 1][Y] + sin_t * sin_p;
+		positions[index][Z] = positions[index - 1][Z] + cos_t;
 	}
 	
 	// Save positions
@@ -105,31 +98,35 @@ int main(){
 	// Random pivot sampling
 	for (long step = 0; step < NUM_STEPS; step++){
 		
-		// Pick random angle and index
-		I = random_monomer();
-		angle = random_angle();
-		cosine = cos(angle);
-		sine = sin(angle);
+		// Pick index
+		index = random_monomer_index();
 		
-		// Retrieve existing monomer-to-monomer vector
-		vector_x = positions[I+1][0] - positions[I][0];
-		vector_y = positions[I+1][1] - positions[I][1];
+		// Pick random angles
+		theta = random_theta();
+		phi   = random_phi();
 		
-		// Perform rotation
-		rot_vec_x = cosine * vector_x -   sine * vector_y;
-		rot_vec_y =   sine * vector_x + cosine * vector_y;
+		cos_t = cos(theta);
+		sin_t = sin(theta);
+		cos_p = cos(phi);
+		sin_p = sin(phi);
 		
-		// Compute displacement
-		disp_x = rot_vec_x - vector_x;
-		disp_y = rot_vec_y - vector_y;
+		vec_x = positions[index][X] + sin_t * cos_p;
+		vec_y = positions[index][Y] + sin_t * sin_p;
+		vec_z = positions[index][Z] + cos_t;
+		
+		// Determine displacement and set new vectors
+		disp_x = vec_x - positions[index + 1][X];
+		disp_y = vec_y - positions[index + 1][Y];
+		disp_z = vec_z - positions[index + 1][Z];
 		
 		// Propagate displacement
-		for (int index = I+1; index < NUM_MONOMERS; index++){
-			positions[index][0] += disp_x;
-			positions[index][1] += disp_y;
+		for (next_index = index + 1; next_index < NUM_MONOMERS; next_index++){
+			positions[next_index][X] += disp_x;
+			positions[next_index][Y] += disp_y;
+			positions[next_index][Z] += disp_z;
 			
 			// Save positions
-			saveLineToFile(FILENAME, positions);
+			saveNextLineToFile(FILENAME, positions);
 		}
 	}
 }
