@@ -5,7 +5,7 @@
 
 #define FILENAME     "data/monomer_positions.txt" 
 #define NUM_MONOMERS 10
-#define NUM_STEPS    1000
+#define NUM_STEPS    10000
 
 enum coord{X, Y, Z};
 
@@ -103,6 +103,9 @@ int main(){
 	
 	// Random pivot sampling
 	for (long step = 0; step < NUM_STEPS; step++){
+		
+		// Print progress
+		printf("Progress: %ld%%\n", step * 100 / NUM_STEPS);
 		
 		// Pick index
 		index = random_monomer_index();
