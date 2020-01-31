@@ -10,14 +10,13 @@ LOAD DATA SET
 
 # Loading the data set
 filename = 'data/monomer_positions.txt'
-positions_raw = np.loadtxt(filename, delimiter=',')
+data = np.loadtxt(filename, delimiter=',')
 
 # Isolate positions and end-to-end distances
-positions_array = positions_raw[:,0:-1]
-distances_array = positions_raw[:,-1]
+positions_array = data[:,0:-1]
+distances_array = data[:,-1]
 
-# Determine how many different conformations there are
-# Determine how many monomers there are
+# Determine number of conformations and monomers
 num_steps = positions_array.shape[0]
 num_monomers = positions_array.shape[1] // 3
 
@@ -30,7 +29,7 @@ positions_list = [np.reshape(row, shape) for row in positions_array]
 PLOT SYSTEM
 '''
 
-# Initiate 3D axes
+# Initiate axes for animation and histogram
 fig = plt.figure(figsize=(10,5))
 ax1 = fig.add_subplot(121, projection='3d')
 ax2 = fig.add_subplot(122)
@@ -47,25 +46,30 @@ ax2.hist(distances_array[0])
 https://matplotlib.org/gallery/animation/animated_histogram.html
 '''
 
-# Update atom positions
+# Update axes
 def update(frame):
 
+	# Polymer conformation
 	line.set_data(positions_list[frame][:,0:2].T)
 	line.set_3d_properties(positions_list[frame][:,2])
 	
-	ax2.hist(distances_array[0:frame+1])
+	# Histogram
+	ax2.hist(distances_array[0:frame+1], \
+			bins=num_monomers, range=(0, num_monomers))
 
 '''
 CONFIGURE PLOT SETTINGS
 '''
 
-# Set axis limits
+# Set limits for 3D plot
+font = 16
 limit = np.sqrt(num_monomers)
 ax1.set_xlim3d([-limit, limit])
 ax1.set_ylim3d([-limit, limit])
 ax1.set_zlim3d([-limit, limit])
-ax1.set_title('Freely Jointed 3D Random Walk', fontsize=20)
 ax2.set_xlim([0, num_monomers])
+ax1.set_title('Freely Jointed 3D Random Walk', fontsize=font)
+ax2.set_title('End-to-end Distances', fontsize=font)
 
 '''
 ANIMATE THE POLYMER
