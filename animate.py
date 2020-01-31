@@ -40,7 +40,10 @@ line = ax1.plot(positions_list[0][:,0], \
 				positions_list[0][:,0],
 				'-o')[0]
 				
-ax2.hist(distances_array[0])
+ax2.hist(distances_array[0], color='g', \
+			bins=num_monomers, range=(0, num_monomers))
+ax2.axvline(np.sqrt(num_monomers), zorder=1, \
+			c='r', linewidth=3, label=r'R$_{RMS}$')
 
 '''
 https://matplotlib.org/gallery/animation/animated_histogram.html
@@ -54,7 +57,7 @@ def update(frame):
 	line.set_3d_properties(positions_list[frame][:,2])
 	
 	# Histogram
-	ax2.hist(distances_array[0:frame+1], \
+	ax2.hist(distances_array[0:frame+1], color='g', \
 			bins=num_monomers, range=(0, num_monomers))
 
 '''
@@ -68,6 +71,7 @@ ax1.set_xlim3d([-limit, limit])
 ax1.set_ylim3d([-limit, limit])
 ax1.set_zlim3d([-limit, limit])
 ax2.set_xlim([0, num_monomers])
+ax2.legend(fontsize=font-4, loc='upper right')
 ax1.set_title('Freely Jointed 3D Random Walk', fontsize=font)
 ax2.set_title('End-to-end Distances', fontsize=font)
 
