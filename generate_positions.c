@@ -5,7 +5,7 @@
 
 #define FILENAME     "data/monomer_positions.txt" 
 #define NUM_MONOMERS 10
-#define NUM_STEPS    100
+#define NUM_STEPS    1000
 
 enum coord{X, Y, Z};
 
@@ -21,7 +21,7 @@ int random_monomer_index(){
 	return rand() % (NUM_MONOMERS - 1);
 }
 
-void saveFile(char *filename, double **positions, char *mode){
+void saveFile(char *filename, double **positions, double magnitude, char *mode){
 	
 	// Open file
 	FILE* fptr = fopen(filename, mode);
@@ -34,22 +34,22 @@ void saveFile(char *filename, double **positions, char *mode){
 	for (int i = 0; i < NUM_MONOMERS; i++)
 		for (int j = 0; j <= 2; j++)
 			fprintf(fptr, "%lf, ", positions[i][j]);
-	fprintf(fptr, "0.0 \n");
+	fprintf(fptr, "%lf \n", magnitude);
 
 	// Close file
 	fclose(fptr);
 	return;
 }
 
-void saveFirstLineToFile(char* filename, double **positions){
+void saveFirstLineToFile(char* filename, double **positions, double magnitude){
 
-	saveFile(filename, positions, "w+");
+	saveFile(filename, positions, magnitude, "w+");
 	return;
 }
 
-void saveNextLineToFile(char* filename, double **positions){
+void saveNextLineToFile(char* filename, double **positions, double magnitude){
 
-	saveFile(filename, positions, "a");
+	saveFile(filename, positions, magnitude, "a");
 	return;
 }
 
@@ -65,6 +65,7 @@ int main(){
 	double cos_p, sin_p;
 	double vec_x, vec_y, vec_z;
 	double disp_x, disp_y, disp_z;
+	double magnitude;
 	
 	// Allocate position array
 	double **positions = (double**)malloc(NUM_MONOMERS * sizeof(double*));
@@ -92,8 +93,13 @@ int main(){
 		positions[index][Z] = positions[index - 1][Z] + cos_t;
 	}
 	
+	// Determine end-to-end distance
+	magnitude = sqrt(positions[NUM_MONOMERS - 1][X] * positions[NUM_MONOMERS - 1][X]
+					+ positions[NUM_MONOMERS - 1][Y] * positions[NUM_MONOMERS - 1][Y]
+					+ positions[NUM_MONOMERS - 1][Z] * positions[NUM_MONOMERS - 1][Z]);
+	
 	// Save positions
-	saveFirstLineToFile(FILENAME, positions);
+	saveFirstLineToFile(FILENAME, positions, magnitude);
 	
 	// Random pivot sampling
 	for (long step = 0; step < NUM_STEPS; step++){
@@ -124,9 +130,14 @@ int main(){
 			positions[next_index][X] += disp_x;
 			positions[next_index][Y] += disp_y;
 			positions[next_index][Z] += disp_z;
-			
-			// Save positions
-			saveNextLineToFile(FILENAME, positions);
 		}
+		
+		// Determine end-to-end distance
+		magnitude = sqrt(positions[NUM_MONOMERS - 1][X] * positions[NUM_MONOMERS - 1][X]
+						+ positions[NUM_MONOMERS - 1][Y] * positions[NUM_MONOMERS - 1][Y]
+						+ positions[NUM_MONOMERS - 1][Z] * positions[NUM_MONOMERS - 1][Z]);
+		
+		// Save positions
+		saveNextLineToFile(FILENAME, positions, magnitude);
 	}
 }
